@@ -13,6 +13,8 @@ class Category(models.Model):
         ('income', 'Income'),
         ('expense', 'Expense'),
     ]
+    class Meta:
+        verbose_name_plural = "Categories"
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     category_type = models.CharField(max_length=20, choices=CATEGORY_TYPES)
