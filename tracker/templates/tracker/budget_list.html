@@ -1,0 +1,17 @@
+{% extends "tracker/base.html" %}
+{% block title %}Budgets{% endblock %}
+{% block content %}
+<h2>Your Budgets</h2>
+<a href="{% url 'budget_create' %}">+ Add Budget</a>
+<ul>
+    {% for budget in budgets %}
+        <li>
+            {{ budget.category.name }} — Limit: {{ budget.limit_amount }} —
+            Spent: {{ budget.get_total_spent }} ({{ budget.get_budget_status }}) —
+            {{ budget.start_date }} to {{ budget.end_date }}
+            <a href="{% url 'budget_update' budget.pk %}">Edit</a>
+            <a href="{% url 'budget_delete' budget.pk %}">Delete</a>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

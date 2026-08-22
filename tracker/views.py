@@ -1,7 +1,8 @@
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
-from .models import Category,Transaction
-from .forms import CategoryForm, TransactionForm     
+from .models import Category,Transaction, Budget
+from .forms import BudgetForm, CategoryForm, TransactionForm     
 
 def dashboard(request):
     return render(request, 'tracker/dashboard.html')
@@ -81,3 +82,47 @@ def transaction_delete(request, pk):
         transaction.delete()
         return redirect('transaction_list')
     return render(request, 'tracker/transaction_confirm_delete.html', {'transaction': transaction})
+
+@login_required
+def budget_list(request):
+    budgets = Budget.objects.filter(user=request.user)
+    return render(request, 'tracker/budget_list.html', {'budgets': budgets})
+
+@login_required
+def budget_create(request):
+    if request.method == 'POST':
+        form = BudgetForm(request.POST, user=request.user)
+        if form.is_valid():
+            budget = form.save(commit=False)
+            budget.user = request.user
+            try:
+                budget.save()
+                return redirect('budget_list')
+            except IntegrityError: 
+                form.add_error(None, "category already has a budget for the selected date range.")
+    else:
+        form = BudgetForm(user=request.user)
+    return render(request, 'tracker/budget_form.html', {'form': form})
+
+@login_required
+def budget_update(request, pk):
+    budget = get_object_or_404(Budget, pk=pk, user=request.user)
+    if request.method == 'POST':
+        form = BudgetForm(request.POST, instance=budget, user=request.user)
+        if form.is_valid():
+            try:
+                form.save()
+                return redirect('budget_list')
+            except IntegrityError:
+                form.add_error(None, "category already has a budget for the selected date range.")
+    else:
+        form = BudgetForm(instance=budget, user=request.user)
+    return render(request, 'tracker/budget_form.html', {'form': form})
+
+@login_required
+def budget_delete(request, pk):
+    budget = get_object_or_404(Budget, pk=pk, user=request.user)
+    if request.method == 'POST':
+        budget.delete()
+        return redirect('budget_list')
+    return render(request, 'tracker/budget_confirm_delete.html', {'budget': budget})
