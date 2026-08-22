@@ -87,4 +87,4 @@ class SavingsGoal(models.Model):
         return Decimal('0')
 
     def __str__(self):
-        return f"{self.name} - {self.current_amount}/{self.target_amount}"
+        return f"{self.name} - {self.current_amount}/{self.target_amount}" 
