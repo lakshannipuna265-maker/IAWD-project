@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.shortcuts import render
 
 def dashboard(request):
-    return HttpResponse("Dashboard placeholder — routing works!")
+    return render(request, 'tracker/dashboard.html')
