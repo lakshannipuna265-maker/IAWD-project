@@ -1,0 +1,16 @@
+{% extends "tracker/base.html" %}
+{% block title %}Savings Goals{% endblock %}
+{% block content %}
+<h2>Your Savings Goals</h2>
+<a href="{% url 'savingsgoal_create' %}">+ Add Savings Goal</a>
+<ul>
+    {% for goal in goals %}
+        <li>
+            {{ goal.name }} — {{ goal.current_amount }} / {{ goal.target_amount }}
+            ({{ goal.progress_percentage }}%) — Target: {{ goal.target_date }}
+            <a href="{% url 'savingsgoal_update' goal.pk %}">Edit</a>
+            <a href="{% url 'savingsgoal_delete' goal.pk %}">Delete</a>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

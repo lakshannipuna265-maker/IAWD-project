@@ -1,5 +1,5 @@
 from django import forms
-from .models import Budget, Category, Transaction
+from .models import Budget, Category, SavingsGoal, Transaction
 
 class CategoryForm(forms.ModelForm):
     class Meta:
@@ -31,3 +31,12 @@ class BudgetForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if user:
             self.fields['category'].queryset = Category.objects.filter(user=user)
+
+class SavingsGoalForm(forms.ModelForm):
+    class Meta:
+        model = SavingsGoal
+        fields = ['name', 'target_amount', 'current_amount', 'start_date', 'target_date']
+        widgets = {
+            'start_date': forms.DateInput(attrs={'type': 'date'}),
+            'target_date': forms.DateInput(attrs={'type': 'date'}),
+        }

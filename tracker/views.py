@@ -1,8 +1,8 @@
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
-from .models import Category,Transaction, Budget
-from .forms import BudgetForm, CategoryForm, TransactionForm     
+from .models import Category, SavingsGoal,Transaction, Budget
+from .forms import BudgetForm, CategoryForm, SavingsGoalForm, TransactionForm     
 
 def dashboard(request):
     return render(request, 'tracker/dashboard.html')
@@ -126,3 +126,41 @@ def budget_delete(request, pk):
         budget.delete()
         return redirect('budget_list')
     return render(request, 'tracker/budget_confirm_delete.html', {'budget': budget})
+
+@login_required
+def savingsgoal_list(request):
+    goals = SavingsGoal.objects.filter(user=request.user)
+    return render(request, 'tracker/savingsgoal_list.html', {'goals': goals})
+
+@login_required
+def savingsgoal_create(request):
+    if request.method == 'POST':
+        form = SavingsGoalForm(request.POST)
+        if form.is_valid():
+            goal = form.save(commit=False)
+            goal.user = request.user
+            goal.save()
+            return redirect('savingsgoal_list')
+    else:
+        form = SavingsGoalForm()
+    return render(request, 'tracker/savingsgoal_form.html', {'form': form})
+
+@login_required
+def savingsgoal_update(request, pk):
+    goal = get_object_or_404(SavingsGoal, pk=pk, user=request.user)
+    if request.method == 'POST':
+        form = SavingsGoalForm(request.POST, instance=goal)
+        if form.is_valid():
+            form.save()
+            return redirect('savingsgoal_list')
+    else:
+        form = SavingsGoalForm(instance=goal)
+    return render(request, 'tracker/savingsgoal_form.html', {'form': form})
+
+@login_required
+def savingsgoal_delete(request, pk):
+    goal = get_object_or_404(SavingsGoal, pk=pk, user=request.user)
+    if request.method == 'POST':
+        goal.delete()
+        return redirect('savingsgoal_list')
+    return render(request, 'tracker/savingsgoal_confirm_delete.html', {'goal': goal})

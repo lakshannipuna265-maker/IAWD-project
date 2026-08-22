@@ -15,4 +15,8 @@ urlpatterns = [
     path('budgets/add/', views.budget_create, name='budget_create'),
     path('budgets/<int:pk>/edit/', views.budget_update, name='budget_update'),
     path('budgets/<int:pk>/delete/', views.budget_delete, name='budget_delete'),
+    path('savingsgoals/', views.savingsgoal_list, name='savingsgoal_list'),
+    path('savingsgoals/add/', views.savingsgoal_create, name='savingsgoal_create'),
+    path('savingsgoals/<int:pk>/edit/', views.savingsgoal_update, name='savingsgoal_update'),
+    path('savingsgoals/<int:pk>/delete/', views.savingsgoal_delete, name='savingsgoal_delete')      
 ]
