@@ -1,15 +1,16 @@
 {% extends "tracker/base.html" %}
-
 {% block title %}Transactions{% endblock %}
-
 {% block content %}
 <h2>Your Transactions</h2>
+<a href="{% url 'transaction_create' %}">+ Add Transaction</a>
 <ul>
     {% for transaction in transactions %}
         <li>
             {{ transaction.date }} — {{ transaction.category.name }} —
             {{ transaction.get_transaction_type_display }} — {{ transaction.amount }}
             {% if transaction.description %}({{ transaction.description }}){% endif %}
+            <a href="{% url 'transaction_update' transaction.pk %}">Edit</a>
+            <a href="{% url 'transaction_delete' transaction.pk %}">Delete</a>
         </li>
     {% endfor %}
 </ul>

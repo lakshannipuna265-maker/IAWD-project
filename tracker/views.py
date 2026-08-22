@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from .models import Category,Transaction
-from .forms import CategoryForm     
+from .forms import CategoryForm, TransactionForm     
 
 def dashboard(request):
     return render(request, 'tracker/dashboard.html')
@@ -48,3 +48,36 @@ def category_delete(request, pk):
 def transaction_list(request):
     transactions = Transaction.objects.filter(user=request.user).order_by('-date')
     return render(request, 'tracker/transaction_list.html', {'transactions': transactions})
+
+@login_required
+def transaction_create(request):
+    if request.method == 'POST':
+        form = TransactionForm(request.POST, user=request.user)
+        if form.is_valid():
+            transaction = form.save(commit=False)
+            transaction.user = request.user
+            transaction.save()
+            return redirect('transaction_list')
+    else:
+        form = TransactionForm(user=request.user)
+    return render(request, 'tracker/transaction_form.html', {'form': form})
+
+@login_required
+def transaction_update(request, pk):
+    transaction = get_object_or_404(Transaction, pk=pk, user=request.user)
+    if request.method == 'POST':
+        form = TransactionForm(request.POST, instance=transaction, user=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('transaction_list')
+    else:
+        form = TransactionForm(instance=transaction, user=request.user)
+    return render(request, 'tracker/transaction_form.html', {'form': form})
+
+@login_required
+def transaction_delete(request, pk):
+    transaction = get_object_or_404(Transaction, pk=pk, user=request.user)
+    if request.method == 'POST':
+        transaction.delete()
+        return redirect('transaction_list')
+    return render(request, 'tracker/transaction_confirm_delete.html', {'transaction': transaction})
