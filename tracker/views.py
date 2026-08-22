@@ -4,8 +4,14 @@ from django.contrib.auth.decorators import login_required
 from .models import Category, SavingsGoal,Transaction, Budget
 from .forms import BudgetForm, CategoryForm, SavingsGoalForm, TransactionForm     
 
+@login_required
 def dashboard(request):
-    return render(request, 'tracker/dashboard.html')
+    context = {
+        'transaction_count': Transaction.objects.filter(user=request.user).count(),
+        'budgets': Budget.objects.filter(user=request.user),
+        'goals': SavingsGoal.objects.filter(user=request.user),
+    }
+    return render(request, 'tracker/dashboard.html', context)
 
 @login_required
 def category_list(request): 
@@ -57,6 +63,7 @@ def transaction_create(request):
         if form.is_valid():
             transaction = form.save(commit=False)
             transaction.user = request.user
+            transaction.transaction_type = transaction.category.category_type         
             transaction.save()
             return redirect('transaction_list')
     else:
@@ -69,7 +76,9 @@ def transaction_update(request, pk):
     if request.method == 'POST':
         form = TransactionForm(request.POST, instance=transaction, user=request.user)
         if form.is_valid():
-            form.save()
+            transaction = form.save(commit=False)
+            transaction.transaction_type = transaction.category.category_type 
+            transaction.save()
             return redirect('transaction_list')
     else:
         form = TransactionForm(instance=transaction, user=request.user)
