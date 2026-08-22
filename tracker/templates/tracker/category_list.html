@@ -4,6 +4,12 @@
 
 {% block content %}
 <h2>Your Categories</h2>
+<a href="{% url 'category_create' %}">+ Add Category</a>
+<li>
+    {{ category.name }} ({{ category.get_category_type_display }})
+    <a href="{% url 'category_update' category.pk %}">Edit</a>
+    <a href="{% url 'category_delete' category.pk %}">Delete</a>
+</li>
 <ul>
     {% for category in categories %}
         <li>{{ category.name }} ({{ category.get_category_type_display }})</li>
