@@ -3,6 +3,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from .models import Category, SavingsGoal,Transaction, Budget
 from .forms import BudgetForm, CategoryForm, SavingsGoalForm, TransactionForm     
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
 
 @login_required
 def dashboard(request):
@@ -173,3 +175,14 @@ def savingsgoal_delete(request, pk):
         goal.delete()
         return redirect('savingsgoal_list')
     return render(request, 'tracker/savingsgoal_confirm_delete.html', {'goal': goal})
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('dashboard')
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/register.html', {'form': form})
