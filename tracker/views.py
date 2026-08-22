@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
-from .models import Category
+from .models import Category,Transaction
 from .forms import CategoryForm     
 
 def dashboard(request):
@@ -43,3 +43,8 @@ def category_delete(request, pk):
         category.delete()
         return redirect('category_list')
     return render(request, 'tracker/category_confirm_delete.html', {'category': category})
+
+@login_required
+def transaction_list(request):
+    transactions = Transaction.objects.filter(user=request.user).order_by('-date')
+    return render(request, 'tracker/transaction_list.html', {'transactions': transactions})
