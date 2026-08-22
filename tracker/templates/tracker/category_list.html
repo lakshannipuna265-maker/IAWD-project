@@ -1,0 +1,12 @@
+{% extends "tracker/base.html" %}
+
+{% block title %}Categories{% endblock %}
+
+{% block content %}
+<h2>Your Categories</h2>
+<ul>
+    {% for category in categories %}
+        <li>{{ category.name }} ({{ category.get_category_type_display }})</li>
+    {% endfor %}
+</ul>
+{% endblock %}
