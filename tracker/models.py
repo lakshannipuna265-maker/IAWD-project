@@ -38,6 +38,8 @@ class Budget(models.Model):
     limit_amount = models.DecimalField(max_digits=10, decimal_places=2)
     start_date = models.DateField()
     end_date = models.DateField()
+    notified_80 = models.BooleanField(default=False)
+    notified_100 = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ("user", "category", "start_date", "end_date")
@@ -53,8 +55,8 @@ class Budget(models.Model):
 
     def percent_used(self):
         if self.limit_amount > 0:
-            return Decimal(self.get_total_spent() / self.limit_amount) * 100
-        return 0
+            return (Decimal(self.get_total_spent()) / Decimal(self.limit_amount)) * 100
+        return Decimal('0')     
 
     def is_over_budget(self):
         return self.get_total_spent() > self.limit_amount   
@@ -83,8 +85,21 @@ class SavingsGoal(models.Model):
 
     def progress_percentage(self):
         if self.target_amount > 0:
-            return (Decimal(self.current_amount / self.target_amount)) * 100
+            return (Decimal(self.current_amount) / Decimal(self.target_amount)) * 100
         return Decimal('0')
 
     def __str__(self):
-        return f"{self.name} - {self.current_amount}/{self.target_amount}" 
+        return f"{self.name} - {self.current_amount}/{self.target_amount}"
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    budget = models.ForeignKey(Budget, on_delete=models.CASCADE, null=True, blank=True)
+    message = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.message} - {self.created_at}"
