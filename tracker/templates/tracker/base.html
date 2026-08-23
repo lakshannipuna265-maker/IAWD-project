@@ -24,7 +24,9 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'budget_list' %}">Budgets</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'savingsgoal_list' %}">Savings Goals</a></li>
                 </ul>
-                <br>
+                <a href="{% url 'notification_list' %}" class="btn btn-outline-light btn-sm me-2">
+                    🔔 {% if unread_count %}({{ unread_count }}){% endif %}
+                </a>
                 <span class="navbar-text me-3">Hello, {{ user.username }}</span>
                 <form method="post" action="{% url 'logout' %}" class="d-flex">
                     {% csrf_token %}

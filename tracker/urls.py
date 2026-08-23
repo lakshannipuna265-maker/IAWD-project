@@ -19,5 +19,7 @@ urlpatterns = [
     path('savingsgoals/add/', views.savingsgoal_create, name='savingsgoal_create'),
     path('savingsgoals/<int:pk>/edit/', views.savingsgoal_update, name='savingsgoal_update'),
     path('savingsgoals/<int:pk>/delete/', views.savingsgoal_delete, name='savingsgoal_delete'),
-    path('register/', views.register, name='register'),      
+    path('register/', views.register, name='register'),    
+    path('notifications/', views.notification_list, name='notification_list'),
+    path('notifications/<int:pk>/read/', views.notification_mark_read, name='notification_mark_read'),  
 ]

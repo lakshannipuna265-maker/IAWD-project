@@ -216,3 +216,15 @@ def check_budget_notifications(transaction):
             )
             budget.notified_80 = True
             budget.save()
+
+@login_required
+def notification_list(request):
+    notifications = Notification.objects.filter(user=request.user)
+    return render(request, 'tracker/notification_list.html', {'notifications': notifications})
+
+@login_required
+def notification_mark_read(request, pk):
+    notification = get_object_or_404(Notification, pk=pk, user=request.user)
+    notification.is_read = True
+    notification.save()
+    return redirect('notification_list')
