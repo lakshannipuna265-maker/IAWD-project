@@ -1,7 +1,7 @@
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
-from .models import Category, SavingsGoal,Transaction, Budget
+from .models import Category, Notification, SavingsGoal,Transaction, Budget
 from .forms import BudgetForm, CategoryForm, SavingsGoalForm, TransactionForm     
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
@@ -67,6 +67,7 @@ def transaction_create(request):
             transaction.user = request.user
             transaction.transaction_type = transaction.category.category_type         
             transaction.save()
+            check_budget_notifications(transaction)
             return redirect('transaction_list')
     else:
         form = TransactionForm(user=request.user)
@@ -81,6 +82,7 @@ def transaction_update(request, pk):
             transaction = form.save(commit=False)
             transaction.transaction_type = transaction.category.category_type 
             transaction.save()
+            check_budget_notifications(transaction)
             return redirect('transaction_list')
     else:
         form = TransactionForm(instance=transaction, user=request.user)
@@ -176,6 +178,7 @@ def savingsgoal_delete(request, pk):
         return redirect('savingsgoal_list')
     return render(request, 'tracker/savingsgoal_confirm_delete.html', {'goal': goal})
 
+@login_required
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -186,3 +189,30 @@ def register(request):
     else:
         form = UserCreationForm()
     return render(request, 'registration/register.html', {'form': form})
+
+@login_required
+def check_budget_notifications(transaction):
+    affected_budgets = Budget.objects.filter(
+        user=transaction.user,
+        category=transaction.category,
+        start_date__lte=transaction.date,
+        end_date__gte=transaction.date
+    )
+    for budget in affected_budgets:
+        percent = budget.percent_used()
+        if percent >= 100 and not budget.notified_100:
+            Notification.objects.create(
+                user=budget.user,
+                budget=budget,
+                message=f"Your {budget.category.name} budget is over 100%! Spent {budget.get_total_spent()} / {budget.limit_amount}."
+            )
+            budget.notified_100 = True
+            budget.save()
+        elif percent >= 80 and not budget.notified_80:
+            Notification.objects.create(
+                user=budget.user,
+                budget=budget,
+                message=f"Your {budget.category.name} budget has reached 80% ({budget.get_total_spent()} / {budget.limit_amount})."
+            )
+            budget.notified_80 = True
+            budget.save()
