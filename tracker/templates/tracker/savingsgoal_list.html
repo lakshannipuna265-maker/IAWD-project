@@ -1,16 +1,27 @@
 {% extends "tracker/base.html" %}
 {% block title %}Savings Goals{% endblock %}
 {% block content %}
-<h2>Your Savings Goals</h2>
-<a href="{% url 'savingsgoal_create' %}">+ Add Savings Goal</a>
-<ul>
-    {% for goal in goals %}
-        <li>
-            {{ goal.name }} — {{ goal.current_amount }} / {{ goal.target_amount }}
-            ({{ goal.progress_percentage }}%) — Target: {{ goal.target_date }}
-            <a href="{% url 'savingsgoal_update' goal.pk %}">Edit</a>
-            <a href="{% url 'savingsgoal_delete' goal.pk %}">Delete</a>
-        </li>
-    {% endfor %}
-</ul>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Your Savings Goals</h2>
+    <a href="{% url 'savingsgoal_create' %}" class="btn btn-primary">+ Add Savings Goal</a>
+</div>
+{% for goal in goals %}
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="d-flex justify-content-between">
+            <h5 class="card-title">{{ goal.name }}</h5>
+            <div>
+                <a href="{% url 'savingsgoal_update' goal.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                <a href="{% url 'savingsgoal_delete' goal.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+            </div>
+        </div>
+        <p class="card-text text-muted">{{ goal.current_amount }} / {{ goal.target_amount }} — Target: {{ goal.target_date }}</p>
+        <div class="progress" role="progressbar" aria-valuenow="{{ goal.progress_percentage }}" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar" style="width: {{ goal.progress_percentage }}%">{{ goal.progress_percentage }}%</div>
+        </div>
+    </div>
+</div>
+{% empty %}
+<p>No savings goals yet.</p>
+{% endfor %}
 {% endblock %}
